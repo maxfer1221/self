@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Maximo</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://kit.fontawesome.com/664c811920.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+</head>
+
+<body>
+  <canvas id="canvas" class="full"></canvas>
+    <div style="display:flex; height: auto;" >
+      <pre id="typewriter">Hello,
+My name is <span class="strong">Maximo</span>.
+
+I am a second year <span class="strong">Mathematics</span> student\fn
+at the <span class="strong">University of Central Florida</span>.
+
+Check out some of my <a href="https://github.com/maxfer1221" class="clickable underline" target="_blank">work</a>.
+</pre>
+
+    </div>
+    <footer class="noselect">
+      <a href="https://github.com/maxfer1221" target="_blank"><i class="clickable fab fa-github"></i></a>
+      <a href="https://www.linkedin.com/in/maximofernandezsch/" target="_blank"><i class="clickable fab fa-linkedin-in"></i></a>
+      <i class="clickable far fa-envelope"></i>
+      <p id="email" class="clickable no-visibility no-op" onclick="clipboard()">maximofernandez@knights.ucf.edu</p>
+      <p id="copied" class="fast-opacity-transition no-op">copied to clipboard</p>
+    </footer>
+</body>
+<foot>
+  <script src="assets/anim.js"></script>
+  <script src="assets/helper.js"></script>
+  <script src="assets/canvas.js"></script>
+</foot>
+</html>

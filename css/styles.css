@@ -1,0 +1,136 @@
+body {
+  background: rgba(0,0,0,0);
+  color: #FFF;
+  font-family: 'Montserrat', serif;
+  margin: 0;
+  font-size: .9em;
+}
+
+footer {
+  color: gray;
+  position: fixed;
+  bottom: 0;
+  padding: 10px;
+  font-size: 1em;
+}
+
+
+footer > * {
+  display: inline;
+  margin-left: 15px;
+  transition: color .7s;
+  color: gray;
+}
+
+footer > p {
+  font-size: .8em;
+}
+
+
+footer > *:hover {
+  color: white;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+.full {
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.strong {
+  font-weight: 700;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.no-op {
+  opacity: 0;
+}
+
+.no-visibility {
+  visibility: hidden;
+}
+
+.clickable:hover {
+  cursor: pointer;
+}
+
+.fast-opacity-transition {
+  transition: opacity .9s;
+}
+
+.slow-opacity-transition {
+  transition: opacity 3s;
+}
+
+#email {
+  transition: opacity .7s, color .7s;
+  padding-bottom: 100px;
+}
+
+#typewriter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  font-size: 2em;
+  /* height: 2.3em;
+  width: 11em; */
+  margin-left: 20%;
+  margin-right: 0;
+  margin-top: 17%;
+  font-family: "Courier New";
+}
+
+#typewriter:after {
+  content: "|";
+  animation: blink 500ms linear infinite alternate;
+}
+
+#typewriter a:link, #typewriter a:visited, #typewriter a:active {
+  color: white;
+}
+
+#typewriter a:hover {
+  color: gray;
+}
+
+@-webkit-keyframes blink{
+  0%{opacity: 0;}
+  100%{opacity: 1;}
+}
+
+@-moz-keyframes blink{
+  0%{opacity: 0;}
+  100%{opacity: 1;}
+}
+
+@keyframes blink{
+  0%{opacity: 0;}
+  100%{opacity: 1;}
+}
+
+
+
+#bar {
+  transition: opacity 2s;
+  background-color: white;
+  margin-top: 20%;
+  height: 5em;
+  width: 3px;
+  border-radius: 3px;
+}
