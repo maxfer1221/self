@@ -6,7 +6,7 @@ function setupTypewriter(t) {
     tag = "",
     writingTag = false,
     tagOpen = false,
-    typeSpeed = 50,
+    typeSpeed = 20,
     tempTypeSpeed = 0;
     variation = 50;
 
