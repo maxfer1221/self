@@ -123,6 +123,10 @@ nav > div {
   font-family: "Courier New";
 }
 
+.content.notes {
+    margin-top: 14%;
+}
+
 #typewriter {
   font-size: 2em;
 }
