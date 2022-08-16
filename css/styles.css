@@ -189,8 +189,8 @@ canvas {
 }
 
 pre {
-    box-shadow: 0px 0px 21px 14px rgba(0,0,0,0.69);
-    -webkit-box-shadow: 0px 0px 21px 14px rgba(0,0,0,0.69);
-    -moz-box-shadow: 0px 0px 21px 14px rgba(0,0,0,0.69);
+    box-shadow: 0px 0px 32px 33px rgba(0,0,0,0.69);
+    -webkit-box-shadow: 0px 0px 32px 33px rgba(0,0,0,0.69);
+    -moz-box-shadow: 0px 0px 32px 33px rgba(0,0,0,0.69);
     background: rgba(0,0,0,.7);
 }
