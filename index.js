@@ -2,21 +2,21 @@ const express = require('express');
 const app  = express();
 const port = 8080;
 
-app.use(express.static('public'));
+app.use(express.static(__dirname));
 
-app.get('/', (req, res) => {
+app.get('/self', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
-app.get('/assets/:name', (req, res) => {
+app.get('/self/assets/:name', (req, res) => {
     res.sendFile(__dirname + `/assets/${req.params.name}`);
 });
-app.get('/css/styles.css', (req, res) => {
+app.get('/self/css/styles.css', (req, res) => {
     res.sendFile(__dirname + '/css/styles.css');
 });
-app.get('/html/:filename', (req, res) => {
+app.get('/self/html/:filename', (req, res) => {
     res.sendFile(__dirname + '/html/' + req.params.filename);
 });
-app.get('/pdfs/:filename', (req, res) => {
+app.get('/self/pdfs/:filename', (req, res) => {
     res.sendFile(__dirname + '/pdfs/' + req.params.filename);
 });
 
