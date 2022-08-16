@@ -1,258 +1,148 @@
-let canvas = document.querySelector('canvas');
+const canvas = document.querySelector("canvas");
+const c      = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let c = canvas.getContext('2d');
-
-let boids = [];
-
-const M = .05;
-
-const M2 = .05;
-
-const M3 = .05;
-
-const boidNum = 30;
-
-const vel = 2;
-
-const maxVel = 5;
-
-const len = 15;
-
-const detRadius = 140;
-
-const globalFov = 270;
-
-const colors = ['#111', '#181818', '#222'];
-
-const drawAngle = Math.PI * 7 / 9;
-
-function init() {
-  for (let i = 0; i < boidNum; i++) {
-    let headingTemp = Math.random() * Math.PI * 2;
-    let xTemp = Math.random() * innerWidth;
-    let yTemp = Math.random() * innerHeight;
-
-    boids.push({
-      points: [],
-      x: xTemp,
-      y: yTemp,
-      v: vel,
-      heading: headingTemp,
-      fov: globalFov,
-      rot: 0,
-      dy: vel * Math.sin(headingTemp),
-      dx: vel * Math.cos(headingTemp),
-      color: colors[Math.floor(Math.random() * colors.length)],
-      l: len,
-      det: detRadius,
-      xAcc: 0,
-      yAcc: 0
-    })
-
-    boids[i].points.push({
-      x: xTemp + Math.cos(headingTemp) * len,
-      y: yTemp + Math.sin(headingTemp) * len
-    })
-    boids[i].points.push({
-      x: xTemp + Math.cos(headingTemp + drawAngle) * len,
-      y: yTemp + Math.sin(headingTemp + drawAngle) * len
-    })
-    boids[i].points.push({
-      x: xTemp,
-      y: yTemp
-    })
-    boids[i].points.push({
-      x: xTemp + Math.cos(headingTemp - drawAngle) * len,
-      y: yTemp + Math.sin(headingTemp - drawAngle) * len
-    })
-  }
+const initCanvas = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
 
-function acc(boid){
-  boid.dx += boid.xAcc;
-  boid.dy += boid.yAcc;
+// noise width/height
+// const nw = canvas.width;
+const nw = 600;
+// const nh = canvas.height;
+const nh = 300;
 
-  boid.v = distancePoints(boid.dx, boid.dy, 0, 0);
+const zoom = 230;
+const speed = 2;
 
-  mult = vel/boid.v;
+const flow = Array.from({ length: nw }, () => {
+    return Array.from({ length: nh }, () => 0);
+});
+const initNoise = () => {
+    noise.seed(Math.random());
+    for (let x = 0; x < nw; x++) {
+        for (let y = 0; y < nh; y++) {
+            const dx  = noise.simplex2(x / zoom, y / zoom);
+            const dy  = noise.simplex2(6000 + x / zoom, 6000 + y / zoom);
+            const len = Math.sqrt(dx*dx + dy*dy);
 
-  boid.dx *= mult;
-  boid.dy *= mult;
+            let tx = 0;
+            let ty = 0;
+            if (len != 0) {
+                tx  = speed * dx / len;
+                ty  = speed * dy / len;
+            } else {
+                tx = 0;
+                ty = 0;
+            }
 
-  boid.xAcc = 0;
-  boid.yAcc = 0;
-
-}
-
-function detectClose(boid){
-  let closeBoids = [];
-
-  for(let i = 0; i < boids.length; i++){
-    bTemp = boids[i];
-
-    if(boid==bTemp){
-      continue;
+            flow[x][y] = { x: tx, y: ty };
+        }
     }
+}
 
-    let distanceToBoid = distancePoints(bTemp.x, bTemp.y, boid.x, boid.y);
+const pw = Math.min(Math.floor(window.innerWidth / 15), 60);
+const ph = Math.min(Math.floor(window.innerHeight / 15), 30);
 
-    if(distanceToBoid <= boid.det){
-      let angleOfRot = 5*Math.PI/2 - boid.heading;
+const colors = [
+    "#FF4800",
+    "#FF6D00",
+    "#FF8500",
+    "#FF9E00",
+    "#FFB600",
+]
 
-      let distFromOrigin = distancePoints(boid.x, boid.y, 0, 0);
-
-      let xBNew = (bTemp.x-boid.x)*Math.cos(angleOfRot) - (bTemp.y-boid.y)*Math.sin(angleOfRot);
-      let yBNew = (bTemp.x-boid.x)*Math.sin(angleOfRot) + (bTemp.y-boid.y)*Math.cos(angleOfRot);
-
-      let tempBool1 = yBNew > xBNew;
-      let tempBool2 = yBNew > -xBNew;
-
-      if(tempBool1 || tempBool2){
-        closeBoids.push(bTemp);
-      }
+function hexToRgbA(hex){
+    var c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',.015)';
     }
-  }
-  return closeBoids;
+    throw new Error('Bad Hex');
 }
 
-function deviate(boid){
-  let closeBoids = detectClose(boid);
-
-  for(var i = 0; i < closeBoids.length; i++){
-
-    bTemp = closeBoids[i];
-
-    let dist = Math.pow(distObjsAsAtt(bTemp, boid), 2);
-
-    if(dist<=.1){
-      dist = .1;
-    }
-
-    let angleBetweenBoids = angleBetween2ObjsAsAtt(boid, bTemp);
-
-    boid.xAcc += M*Math.cos(angleBetweenBoids)/dist;
-    boid.yAcc += M*Math.sin(angleBetweenBoids)/dist;
-  }
+let points = [];
+const initPoints = () => {
+    points = Array.from({ length: pw }, (v, x) => {
+        return Array.from(
+            { length: ph }, 
+            (v, y) => {
+                const xp = x * window.innerWidth  / pw;
+                const yp = y * window.innerHeight / ph;
+                return { 
+                    prev: { x: xp, y: yp},
+                    x: xp, y: yp,
+                    c: hexToRgbA(colors[Math.floor(Math.random() * colors.length)])
+                }
+            }
+        );
+    });
 }
 
-function align(boid){
-  let closeBoids = detectClose(boid);
+const reset = () => {
+    initCanvas();
+    initNoise();
+    initPoints();
+    c.fillStyle = "#000";
+    c.fillRect(0,0,window.innerWidth,window.innerHeight);
+    c.strokeStyle = "";
+    c.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+};
 
-  let headings = [];
+window.onresize = reset;
 
-  for(var i = 0; i < closeBoids.length; i++){
-    headings.push(closeBoids[i].heading);
-    let sum = sumAngles(headings);
+reset();
 
-    boid.xAcc += M2*Math.cos(sum);
-    boid.yAcc += M2*Math.sin(sum);
-  }
-}
-
-function cohed(boid){
-  let closeBoids = detectClose(boid);
-  if(closeBoids.length!=0){
-    let sumX = 0;
-    let sumY = 0;
-
-    for(var i = 0; i < closeBoids.length; i++){
-      sumX += closeBoids[i].x;
-      sumY += closeBoids[i].y;
-    }
-
-
-    sumX /= closeBoids.length;
-    sumY /= closeBoids.length;
-
-    let ang = angleBetween2Points(sumX, sumY, boid.x, boid.y);
-
-    boid.xAcc += M3*Math.cos(ang);
-    boid.yAcc += M3*Math.sin(ang);
-  }
-}
-
-function reCalcSpeed(boid){
-  deviate(boid);
-  align(boid);
-  cohed(boid);
-  acc(boid);
-}
-
-function setBoidPoints(b) {
-  b.points = [];
-  b.points.push({
-    x: b.x + Math.cos(b.heading) * b.l,
-    y: b.y + Math.sin(b.heading) * b.l
-  })
-  b.points.push({
-    x: b.x + Math.cos(b.heading + drawAngle) * b.l,
-    y: b.y + Math.sin(b.heading + drawAngle) * b.l
-  })
-  b.points.push({
-    x: b.x,
-    y: b.y
-  })
-  b.points.push({
-    x: b.x + Math.cos(b.heading - drawAngle) * b.l,
-    y: b.y + Math.sin(b.heading - drawAngle) * b.l
-  })
-}
-
-function checkIfOnEdge(b) {
-  if(b.x > innerWidth + len){
-    b.x = -len;
-  } else if(b.x < -len){
-    b.x = innerWidth + len;
-  } else if(b.y > innerHeight + len){
-    b.y = -len;
-  } else if(b.y < -len){
-    b.y = innerHeight + len;
-  }
-}
-
+c.lineWidth = 2;
 function animate() {
-  c.clearRect(0, 0, innerWidth, innerHeight);
-  c.fillStyle = '#000';
-  c.fillRect(0, 0, innerWidth, innerHeight);
-  for (let i = 0; i < boids.length; i++) {
-    b = boids[i];
+    for (let x = 0; x < pw; x++) {
+        for (let y = 0; y < ph; y++) {
+            const p = points[x][y];
+            c.beginPath();
+            c.strokeStyle = p.c;
+       
+            if (p.x < 0) {
+                p.x = window.innerWidth + 1;
+                p.prev = { x: window.innerWidth + 1, y: window.innerHeight - p.y };
+            }
+            else if (p.x >= window.innerWidth) {
+                p.x = -1;
+                p.prev = { x: -1, y: window.innerHeight - p.y };
+            }
+            if (p.y < 0) {
+                p.y = window.innerHeight + 1;
+                p.prev = { x: window.innerWidth - p.x, y: window.innerHeight + 1 };
+            }
+            else if (p.y >= window.innerHeight) {
+                p.y = -1;
+                p.prev = { x: window.innerWidth - p.x, y: -1 };
+            }
+            
+            c.moveTo(p.prev.x, p.prev.y);
 
-    setBoidPoints(b);
+            const i = Math.floor(nw * Math.max(Math.min(p.x, window.innerWidth - 1),0) / window.innerWidth);
+            const j = Math.floor(nh * Math.max(Math.min(p.y, window.innerHeight- 1),0) / window.innerHeight);
 
-    checkIfOnEdge(b);
+            const v = flow[i][j];
+            
+            p.prev = { x: p.x, y: p.y };
+            
+            p.x += v.x;
+            p.y += v.y;
 
-    c.fillStyle = 'rgba(112, 108, 97, .2)';
-
-    // c.beginPath();
-    // c.moveTo(b.x, b.y);
-    // c.arc(b.x, b.y, b.det, b.heading - degToRad(globalFov/2), b.heading + degToRad(globalFov/2), false);
-    // c.lineTo(b.x, b.y);
-    // c.fill();
-
-    c.fillStyle = b.color;
-
-    c.beginPath();
-    c.moveTo(b.points[0].x, b.points[0].y);
-    c.lineTo(b.points[1].x, b.points[1].y);
-    c.lineTo(b.points[2].x, b.points[2].y);
-    c.lineTo(b.points[3].x, b.points[3].y);
-    c.fill();
-
-    reCalcSpeed(b);
-
-    b.x += b.dx;
-    b.y += b.dy;
-
-    b.heading = angleBetween2Points(b.dx,b.dy,0,0);
-  }
+            if (p.x === null || p.y === null) console.log(v);
 
 
-  requestAnimationFrame(animate);
+            c.lineTo(p.x, p.y);
+            c.stroke();
+        }
+    }
+    
+    requestAnimationFrame(animate);
 }
-
-init();
 
 animate();

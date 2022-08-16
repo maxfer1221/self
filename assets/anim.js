@@ -6,9 +6,9 @@ function setupTypewriter(t) {
     tag = "",
     writingTag = false,
     tagOpen = false,
-    typeSpeed = 20,
+    typeSpeed = 15,
     tempTypeSpeed = 0;
-    variation = 50;
+    variation = 70;
 
     var type = function() {
         if (writingTag === true) {
@@ -60,7 +60,7 @@ function setupTypewriter(t) {
             }
         }
         if(HTML[cursorPosition + 1] === "\n") {
-          tempTypeSpeed = 700;
+          tempTypeSpeed = 600;
         }
         if(HTML[cursorPosition + 1] === "\\" &&
            HTML[cursorPosition + 2] === "f"  &&
