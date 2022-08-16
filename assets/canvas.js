@@ -7,13 +7,13 @@ const initCanvas = () => {
 }
 
 // noise width/height
-// const nw = canvas.width;
-const nw = 600;
-// const nh = canvas.height;
-const nh = 300;
+const nw = canvas.width;
+// const nw = 600;
+const nh = canvas.height;
+// const nh = 300;
 
-const zoom = 230;
-const speed = 2;
+const zoom = 100;
+const speed = 1;
 
 const flow = Array.from({ length: nw }, () => {
     return Array.from({ length: nh }, () => 0);
@@ -22,27 +22,23 @@ const initNoise = () => {
     noise.seed(Math.random());
     for (let x = 0; x < nw; x++) {
         for (let y = 0; y < nh; y++) {
-            const dx  = noise.simplex2(x / zoom, y / zoom);
-            const dy  = noise.simplex2(6000 + x / zoom, 6000 + y / zoom);
-            const len = Math.sqrt(dx*dx + dy*dy);
+            const dx  = noise.simplex3(x / zoom, y / zoom, 0);
+            const dy  = noise.simplex3(x / zoom, y / zoom, 20)
 
-            let tx = 0;
-            let ty = 0;
-            if (len != 0) {
-                tx  = speed * dx / len;
-                ty  = speed * dy / len;
-            } else {
-                tx = 0;
-                ty = 0;
-            }
+            tx = dx * speed;
+            ty = dy * speed;
 
             flow[x][y] = { x: tx, y: ty };
         }
     }
 }
 
-const pw = Math.min(Math.floor(window.innerWidth / 15), 60);
-const ph = Math.min(Math.floor(window.innerHeight / 15), 30);
+// const pw = Math.min(Math.floor(window.innerWidth / 15), 60);
+// const ph = Math.min(Math.floor(window.innerHeight / 15), 30);
+const ratio = window.innerWidth / window.innerHeight;
+const qual = 50;
+const pw = Math.floor(qual * ratio);
+const ph = Math.floor(qual / ratio);
 
 const colors = [
     "#FF4800",
@@ -60,21 +56,22 @@ function hexToRgbA(hex){
             c= [c[0], c[0], c[1], c[1], c[2], c[2]];
         }
         c= '0x'+c.join('');
-        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',.015)';
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',.05)';
     }
     throw new Error('Bad Hex');
 }
 
+
 let points = [];
 const initPoints = () => {
-    points = Array.from({ length: pw }, (v, x) => {
+    points = Array.from({ length: pw}, (v, x) => {
         return Array.from(
             { length: ph }, 
             (v, y) => {
-                const xp = x * window.innerWidth  / pw;
-                const yp = y * window.innerHeight / ph;
+                const xp = (window.innerWidth / (2 * pw)) + ((x * window.innerWidth) / pw);
+                const yp = (window.innerHeight / (2 * ph)) + ((y * window.innerHeight) / ph);
                 return { 
-                    prev: { x: xp, y: yp},
+                    prev: { x: xp, y: yp },
                     x: xp, y: yp,
                     c: hexToRgbA(colors[Math.floor(Math.random() * colors.length)])
                 }
@@ -87,17 +84,14 @@ const reset = () => {
     initCanvas();
     initNoise();
     initPoints();
-    c.fillStyle = "#000";
-    c.fillRect(0,0,window.innerWidth,window.innerHeight);
-    c.strokeStyle = "";
-    c.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+//    c.fillStyle = "#000";
+//    c.fillRect(0,0,window.innerWidth,window.innerHeight);
 };
 
 window.onresize = reset;
 
 reset();
 
-c.lineWidth = 2;
 function animate() {
     for (let x = 0; x < pw; x++) {
         for (let y = 0; y < ph; y++) {
