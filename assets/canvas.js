@@ -1,9 +1,13 @@
 const canvas = document.querySelector("canvas");
 const c      = canvas.getContext("2d");
+const overlay = document.getElementById("canvas-overlay");
+const c2 = overlay.getContext("2d");
 
 const initCanvas = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    overlay.width = window.innerWidth;
+    overlay.height = window.innerHeight;
 }
 
 // noise width/height
@@ -48,7 +52,7 @@ const colors = [
     "#FFB600",
 ]
 
-function hexToRgbA(hex){
+function hexToRgbA(hex, op){
     var c;
     if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
         c= hex.substring(1).split('');
@@ -56,7 +60,7 @@ function hexToRgbA(hex){
             c= [c[0], c[0], c[1], c[1], c[2], c[2]];
         }
         c= '0x'+c.join('');
-        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',.05)';
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',' + op + ')';
     }
     throw new Error('Bad Hex');
 }
@@ -68,7 +72,7 @@ const initPoints = () => {
         const x = Math.random() * window.innerWidth;
         const y = Math.random() * window.innerHeight;
         const col = colors[Math.floor(Math.random() * colors.length)];
-        const c = hexToRgbA(col);
+        const c = hexToRgbA(col, '0.03');
         return {
             prev: { x, y }, x, y, c
         }
@@ -89,7 +93,8 @@ reset();
 
 function animate() {
 
-    for (p of points) {
+    for (let k = 0; k < points.length; k++) {
+        let p = points[k];
 
         c.beginPath();
         c.strokeStyle = p.c;
@@ -111,27 +116,56 @@ function animate() {
             p.prev = { x: window.innerWidth - p.x, y: -1 };
         }
         
-        c.moveTo(p.prev.x, p.prev.y);
-
         const i = Math.floor(nw * Math.max(Math.min(p.x, window.innerWidth - 1),0) / window.innerWidth);
         const j = Math.floor(nh * Math.max(Math.min(p.y, window.innerHeight- 1),0) / window.innerHeight);
 
         const v = flow[i][j];
         
+        c.moveTo(p.prev.x, p.prev.y);
+
         p.prev = { x: p.x, y: p.y };
         
         p.x += v.x;
         p.y += v.y;
 
-        if (p.x === null || p.y === null) console.log(v);
-
-
         c.lineTo(p.x, p.y);
         c.stroke();
-
     }
 
     requestAnimationFrame(animate);
 }
 
+
+c_colors = [
+    //"#1d3557",
+    //"#457b9d",
+    //"#a8dadc",
+    //"#f1faee",
+    //"#e63946",
+    "#ffffff",
+]
+
+const mouse = { x: -200, y: -200 };
+
+window.addEventListener('mousemove', (e) => {
+    c2.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+
+    const max = Math.max(window.innerWidth, window.innerHeight);
+    const gradient = c2.createRadialGradient(mouse.x, mouse.y, 10, mouse.x, mouse.y, 300);
+    
+    gradient.addColorStop(0, 'rgba(0,0,0,0)');
+    gradient.addColorStop(.5, 'rgba(0,0,0,0)');
+    gradient.addColorStop(1, 'rgba(0,0,0,.7)');
+    
+    c2.fillStyle = gradient;
+    c2.fillRect(0, 0, window.innerWidth, window.innerHeight);
+});
+window.addEventListener('click', (e) => {
+    const col = c_colors[Math.floor(Math.random() * c_colors.length)];
+    const c = hexToRgbA(col, '0.08');
+    const p = { x: e.clientX, y: e.clientY, c, prev: { x: e.clientX, y: e.clientY }};
+    points.push(p);
+});
 animate();
