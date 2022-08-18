@@ -146,26 +146,49 @@ c_colors = [
 ]
 
 const mouse = { x: -200, y: -200 };
+c2.fillStyle = "rgba(0,0,0,.2)";
+c2.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-window.addEventListener('mousemove', (e) => {
-    c2.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
+triggerLight = (e) => {
+    if (!lights) {
+        c2.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
 
-    const max = Math.max(window.innerWidth, window.innerHeight);
-    const gradient = c2.createRadialGradient(mouse.x, mouse.y, 10, mouse.x, mouse.y, 300);
-    
-    gradient.addColorStop(0, 'rgba(0,0,0,0)');
-    gradient.addColorStop(.5, 'rgba(0,0,0,0)');
-    gradient.addColorStop(1, 'rgba(0,0,0,.7)');
-    
-    c2.fillStyle = gradient;
-    c2.fillRect(0, 0, window.innerWidth, window.innerHeight);
-});
+        const max = Math.max(window.innerWidth, window.innerHeight);
+        const gradient = c2.createRadialGradient(mouse.x, mouse.y, 10, mouse.x, mouse.y, 300);
+        
+        gradient.addColorStop(0, 'rgba(0,0,0,0)');
+        gradient.addColorStop(.5, 'rgba(0,0,0,0)');
+        gradient.addColorStop(1, 'rgba(0,0,0,.7)');
+        
+        c2.fillStyle = gradient;
+        c2.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    }
+}
+window.addEventListener('mousemove', triggerLight);
 window.addEventListener('click', (e) => {
     const col = c_colors[Math.floor(Math.random() * c_colors.length)];
     const c = hexToRgbA(col, '0.08');
     const p = { x: e.clientX, y: e.clientY, c, prev: { x: e.clientX, y: e.clientY }};
     points.push(p);
 });
+
+let lights = true;
+const lb = document.querySelector('.lb-toggle')
+lb.onclick = () => {
+    lights = !lights;
+    if (!lights) {
+        triggerLight({ clientX: -500, clientY: -500 });
+        lb.classList.remove("mdi-lightbulb-outline");
+        lb.classList.add("mdi-lightbulb-off-outline");
+    } else {
+        c2.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        c2.fillStyle = "rgba(0,0,0,.2)";
+        c2.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        lb.classList.add("mdi-lightbulb-outline");
+        lb.classList.remove("mdi-lightbulb-off-outline");
+    }
+}
+
 animate();

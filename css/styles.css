@@ -24,22 +24,32 @@ footer {
   bottom: 0;
   padding: 10px;
   font-size: 1em;
+  display: flex;
+  justify-content: space-between;
+  width: calc(100% - 20px);
 }
 
 
-footer > * {
+footer > * > * {
   display: inline;
-  margin-left: 15px;
   transition: color .7s;
   color: gray;
 }
 
-footer > p {
+footer > .left > * {
+  margin-left: 15px;
+}
+
+footer > .right > * {
+  margin-right: 15px;
+}
+
+footer p {
   font-size: .8em;
 }
 
 
-footer > *:hover {
+footer *:hover {
   color: white;
 }
 
