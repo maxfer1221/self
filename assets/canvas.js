@@ -72,7 +72,7 @@ const initPoints = () => {
         const x = Math.random() * window.innerWidth;
         const y = Math.random() * window.innerHeight;
         const col = colors[Math.floor(Math.random() * colors.length)];
-        const c = hexToRgbA(col, '0.03');
+        const c = hexToRgbA(col, '0.04');
         return {
             prev: { x, y }, x, y, c
         }
