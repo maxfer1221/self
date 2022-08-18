@@ -35,10 +35,10 @@ const initNoise = () => {
 
 // const pw = Math.min(Math.floor(window.innerWidth / 15), 60);
 // const ph = Math.min(Math.floor(window.innerHeight / 15), 30);
-const ratio = window.innerWidth / window.innerHeight;
-const qual = 50;
-const pw = Math.floor(qual * ratio);
-const ph = Math.floor(qual / ratio);
+// const ratio = window.innerWidth / window.innerHeight;
+// const qual = 50;
+// const pw = Math.floor(qual * ratio);
+// const ph = Math.floor(qual / ratio);
 
 const colors = [
     "#FF4800",
@@ -61,23 +61,18 @@ function hexToRgbA(hex){
     throw new Error('Bad Hex');
 }
 
-
+const pc = 2500;
 let points = [];
 const initPoints = () => {
-    points = Array.from({ length: pw}, (v, x) => {
-        return Array.from(
-            { length: ph }, 
-            (v, y) => {
-                const xp = (window.innerWidth / (2 * pw)) + ((x * window.innerWidth) / pw);
-                const yp = (window.innerHeight / (2 * ph)) + ((y * window.innerHeight) / ph);
-                return { 
-                    prev: { x: xp, y: yp },
-                    x: xp, y: yp,
-                    c: hexToRgbA(colors[Math.floor(Math.random() * colors.length)])
-                }
-            }
-        );
-    });
+    points = Array.from({ length: pc }, () => {
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight;
+        const col = colors[Math.floor(Math.random() * colors.length)];
+        const c = hexToRgbA(col);
+        return {
+            prev: { x, y }, x, y, c
+        }
+    })
 }
 
 const reset = () => {
@@ -93,49 +88,49 @@ window.onresize = reset;
 reset();
 
 function animate() {
-    for (let x = 0; x < pw; x++) {
-        for (let y = 0; y < ph; y++) {
-            const p = points[x][y];
-            c.beginPath();
-            c.strokeStyle = p.c;
+
+    for (p of points) {
+
+        c.beginPath();
+        c.strokeStyle = p.c;
        
-            if (p.x < 0) {
-                p.x = window.innerWidth + 1;
-                p.prev = { x: window.innerWidth + 1, y: window.innerHeight - p.y };
-            }
-            else if (p.x >= window.innerWidth) {
-                p.x = -1;
-                p.prev = { x: -1, y: window.innerHeight - p.y };
-            }
-            if (p.y < 0) {
-                p.y = window.innerHeight + 1;
-                p.prev = { x: window.innerWidth - p.x, y: window.innerHeight + 1 };
-            }
-            else if (p.y >= window.innerHeight) {
-                p.y = -1;
-                p.prev = { x: window.innerWidth - p.x, y: -1 };
-            }
-            
-            c.moveTo(p.prev.x, p.prev.y);
-
-            const i = Math.floor(nw * Math.max(Math.min(p.x, window.innerWidth - 1),0) / window.innerWidth);
-            const j = Math.floor(nh * Math.max(Math.min(p.y, window.innerHeight- 1),0) / window.innerHeight);
-
-            const v = flow[i][j];
-            
-            p.prev = { x: p.x, y: p.y };
-            
-            p.x += v.x;
-            p.y += v.y;
-
-            if (p.x === null || p.y === null) console.log(v);
-
-
-            c.lineTo(p.x, p.y);
-            c.stroke();
+        if (p.x < 0) {
+            p.x = window.innerWidth + 1;
+            p.prev = { x: window.innerWidth + 1, y: window.innerHeight - p.y };
         }
+        else if (p.x >= window.innerWidth) {
+            p.x = -1;
+            p.prev = { x: -1, y: window.innerHeight - p.y };
+        }
+        if (p.y < 0) {
+            p.y = window.innerHeight + 1;
+            p.prev = { x: window.innerWidth - p.x, y: window.innerHeight + 1 };
+        }
+        else if (p.y >= window.innerHeight) {
+            p.y = -1;
+            p.prev = { x: window.innerWidth - p.x, y: -1 };
+        }
+        
+        c.moveTo(p.prev.x, p.prev.y);
+
+        const i = Math.floor(nw * Math.max(Math.min(p.x, window.innerWidth - 1),0) / window.innerWidth);
+        const j = Math.floor(nh * Math.max(Math.min(p.y, window.innerHeight- 1),0) / window.innerHeight);
+
+        const v = flow[i][j];
+        
+        p.prev = { x: p.x, y: p.y };
+        
+        p.x += v.x;
+        p.y += v.y;
+
+        if (p.x === null || p.y === null) console.log(v);
+
+
+        c.lineTo(p.x, p.y);
+        c.stroke();
+
     }
-    
+
     requestAnimationFrame(animate);
 }
 
